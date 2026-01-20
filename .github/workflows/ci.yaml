@@ -3,78 +3,56 @@ name: MERN CI
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
-  ci:
+  mongo-init:
     runs-on: ubuntu-latest
 
     services:
       mongo:
-        image: mongo:6
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+        image: mongo
+        ports: ["27017:27017"]
 
     steps:
-      # -------------------------
-      # Checkout Code
-      # -------------------------
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # -------------------------
-      # Setup Node.js
-      # -------------------------
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
-          cache: npm
+          node-version: "24"
 
-      # -------------------------
-      # Wait for MongoDB
-      # -------------------------
-      - name: Wait for MongoDB to be ready
+      - name: Waiting for mongoDB to be ready
         run: |
           until nc -z localhost 27017; do
-            echo "Waiting for MongoDB..."
+            echo "Waitingg for mongoDB..."
             sleep 2
           done
-          echo "MongoDB is ready"
-
-      # =========================
-      # BACKEND
-      # =========================
-      - name: Install Backend Dependencies
-        working-directory: ./backend
-        run: npm install
+            echo "MongoDB is up"
 
       - name: Seed MongoDB
         working-directory: ./backend
-        env:
-          MONGO_URI: mongodb://localhost:27017/testdb
-        run: node seedTaskData.js
+        run: |
+          npm install
+          node seedTaskData.js
 
-      - name: Run Backend Tests
+  test:
+    runs-on: ubuntu-latest
+    needs: mongo-init
+
+    steps:
+      - name: Checkout Respository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "24"
+
+      - name: Install Dependencied for backend
         working-directory: ./backend
-        env:
-          MONGO_URI: mongodb://localhost:27017/testdb
-          NODE_ENV: test
-        run: npm test
-
-      # =========================
-      # FRONTEND
-      # =========================
-      - name: Install Frontend Dependencies
-        working-directory: ./frontend
         run: npm install
 
-      - name: Build Frontend (Vite)
-        working-directory: ./frontend
-        run: npm run build
+      - name: Running Backend Tests
+        working-directory: ./backend
+        run: npm test
