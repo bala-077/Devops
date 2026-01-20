@@ -4,13 +4,13 @@ on:
   push:
     branches: [main]
 
-jobs: 
-  mongo-init: 
+jobs:
+  mongo-init:
     runs-on: ubuntu-latest
 
     services:
       image: mongo
-      port: ['27017:27017']
+      port: ["27017:27017"]
 
     steps:
       - name: Checkout Repository
@@ -18,8 +18,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions@setup-node@v3
-        with: 
-          node-version: '24'
+        with:
+          node-version: "24"
 
       - name: Waiting for mongoDB to be ready
         run: |
@@ -35,21 +35,20 @@ jobs:
           npm install
           node seedTaskData.js
 
-
-  test: 
+  test:
     runs-on: ubuntu-latest
 
-    steps: 
+    steps:
       - name: Checkout Respository
       - uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions@setup-node@v3
-        with: 
-          node-version: '24'
+        with:
+          node-version: "24"
 
       - name: Install Dependencied for backend
         run: npm install
-      
+
       - name: Running Backend Tests
         run: npm test
