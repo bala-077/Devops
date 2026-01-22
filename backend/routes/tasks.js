@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const newTask = new Task({ text: req.body.text });
     await newTask.save();
-    res.json(newTask);
+    res.json(nesk);
 });
 
 // DELETE task

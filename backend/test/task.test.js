@@ -7,9 +7,7 @@ describe('GET api/tasks', () => {
         const res = await request(app).get('/api/tasks');
         expect(res.status).toBe(200);
     })
-    it('should ', async () => {
-        expect().to
-    });
+    
 })
 
 afterAll(async () => {
